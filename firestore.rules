@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['customer', 'items', 'total', 'status', 'createdAt', 'shippingCost', 'userId', 'shippingDays']) &&
+             data.customer.keys().hasAll(['nome', 'email', 'cpf', 'telefone', 'cep', 'endereco', 'cidade', 'estado']) &&
+             data.customer.nome is string &&
+             data.customer.email is string &&
+             data.items is list &&
+             data.shippingCost is number &&
+             data.total is number &&
+             data.status in ['pending', 'paid'] &&
+             data.createdAt is timestamp;
+    }
+
+    match /orders/{orderId} {
+      // Allow any authenticated user to create an order
+      allow create: if isAuthenticated();
+      
+      // Only admin can read/list orders
+      allow read, list: if isAuthenticated() && 
+        (request.auth.token.email == "10203040ghg@gmail.com" && request.auth.token.email_verified == true);
+    }
+  }
+}

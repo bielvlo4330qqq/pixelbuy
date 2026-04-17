@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "A purchase order containing customer details and products.",
+      "type": "object",
+      "properties": {
+        "customer": {
+          "type": "object",
+          "properties": {
+            "nome": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "cpf": { "type": "string" },
+            "telefone": { "type": "string" },
+            "cep": { "type": "string" },
+            "endereco": { "type": "string" },
+            "cidade": { "type": "string" },
+            "estado": { "type": "string" }
+          },
+          "required": ["nome", "email", "cpf", "telefone", "cep", "endereco", "cidade", "estado"]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "number" },
+              "nome": { "type": "string" },
+              "preco": { "type": "number" },
+              "img": { "type": "string" }
+            }
+          }
+        },
+        "shippingCost": { "type": "number" },
+        "shippingDays": { "type": "string" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "paid"] },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customer", "items", "total", "status", "createdAt", "shippingCost", "userId", "shippingDays"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Collection of purchase orders."
+    }
+  }
+}
