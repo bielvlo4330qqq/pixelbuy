@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { PRODUCTS } from "./constants";
 import { CartItem, PixData, CheckoutForm, Product } from "./types";
 import { db, auth, googleProvider } from "./firebase";
-import { collection, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, updateDoc, doc, onSnapshot } from "firebase/firestore";
 import { signInWithPopup } from "firebase/auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
@@ -61,9 +61,6 @@ function AppContent() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [maxPrice, setMaxPrice] = useState(200);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [user, setUser] = useState(auth.currentUser);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -80,11 +77,7 @@ function AppContent() {
   }, [validationError]);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((u) => {
-      setUser(u);
-      setIsAuthLoading(false);
-    });
-    return () => unsubscribe();
+    // Auth logic removed as per user request
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -143,6 +136,25 @@ function AppContent() {
     }
     return () => clearInterval(timer);
   }, [pixData, timeLeft, paymentConfirmed, lastOrderId]);
+
+  useEffect(() => {
+    let unsubscribe: () => void;
+    if (lastOrderId && pixData) {
+      console.log("Iniciando monitoramento do pedido:", lastOrderId);
+      unsubscribe = onSnapshot(doc(db, "orders", lastOrderId), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          console.log("Status do pedido atualizado:", data.status);
+          if (data.status === "paid") {
+            setPaymentConfirmed(true);
+          }
+        }
+      });
+    }
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [lastOrderId, pixData]);
 
   useEffect(() => {
     if (paymentConfirmed && pixData) {
@@ -207,11 +219,6 @@ function AppContent() {
   };
 
   const handleCheckout = async () => {
-    if (!user) {
-      setGlobalError("Você precisa estar logado para finalizar a compra!");
-      return;
-    }
-
     // Validation
     const missingFields = [];
     if (!form.nome.trim()) missingFields.push("Nome");
@@ -253,7 +260,7 @@ function AppContent() {
         total: Number(total.toFixed(2)),
         status: "pending",
         createdAt: serverTimestamp(),
-        userId: user.uid
+        userId: "guest"
       };
 
       console.log("Salvando pedido no Firebase:", orderData);
@@ -261,6 +268,19 @@ function AppContent() {
         const docRef = await addDoc(collection(db, "orders"), orderData);
         setLastOrderId(docRef.id);
         console.log("Pedido salvo com sucesso! ID:", docRef.id);
+
+        // --- SIMULAÇÃO DE PAGAMENTO AUTOMÁTICO PARA DEMONSTRAÇÃO ---
+        // Em um sistema real, seu banco enviaria um webhook para seu servidor
+        // que então atualizaria o status no Firestore.
+        setTimeout(async () => {
+          try {
+            await updateDoc(doc(db, "orders", docRef.id), { status: "paid" });
+            console.log("Simulação: Pagamento confirmado automaticamente no banco de dados.");
+          } catch (err) {
+            console.error("Erro na simulação de pagamento:", err);
+          }
+        }, 15000); // 15 segundos para dar tempo do usuário ver o QR Code
+        // -----------------------------------------------------------
       } catch (error) {
         console.error("Erro ao salvar no Firebase:", error);
         if (error instanceof Error && error.message.includes("permission")) {
@@ -315,28 +335,6 @@ function AppContent() {
     }
   };
 
-  const handleLogin = async () => {
-    if (isLoggingIn) return;
-    
-    setIsLoggingIn(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
-      console.error("Erro no login:", error);
-      if (error.code === "auth/popup-blocked") {
-        alert("O popup de login foi bloqueado pelo seu navegador.\n\nPara resolver:\n1. Clique no ícone de 'janela bloqueada' na barra de endereços e escolha 'Sempre permitir'.\n2. Ou clique no botão 'Abrir em nova aba' no topo do editor para usar a loja em tela cheia.");
-      } else if (error.code === "auth/cancelled-popup-request") {
-        // Silent fail as it means another request is already in progress
-      } else if (error.code === "auth/popup-closed-by-user") {
-        // Silent fail as user closed it
-      } else {
-        alert("Erro ao realizar login. Tente novamente.");
-      }
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   const copyPixCode = () => {
     if (pixData) {
       navigator.clipboard.writeText(pixData.qr_code);
@@ -353,90 +351,25 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-[#3483fa] selection:text-white">
-      <AnimatePresence>
-        {isAuthLoading ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-[#0a0a0a]"
+      {/* Header */}
+      <header className="flex justify-between items-center px-6 py-4 bg-black sticky top-0 z-40 border-b border-white/5">
+        <div className="text-2xl font-bold tracking-tight text-white">PIXEL</div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="relative group p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all border border-white/10"
           >
-            <div className="w-12 h-12 border-4 border-[#3483fa]/20 border-t-[#3483fa] rounded-full animate-spin" />
-          </motion.div>
-        ) : !user ? (
-          <motion.div
-            key="login"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0a] p-6"
-          >
-            <div className="w-full max-w-md text-center space-y-8">
-              <div className="space-y-2">
-                <div className="text-5xl font-black tracking-tighter text-[#3483fa] mb-4">PIXEL</div>
-                <h1 className="text-3xl font-bold">Bem-vindo à Pixel Store</h1>
-                <p className="text-gray-400">Faça login para acessar nossos produtos exclusivos.</p>
-              </div>
+            <ShoppingCart className="w-6 h-6" />
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#0a0a0a] group-hover:scale-110 transition-transform">
+                {cart.length}
+              </span>
+            )}
+          </button>
+        </div>
+      </header>
 
-              <button
-                onClick={handleLogin}
-                disabled={isLoggingIn}
-                className="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-[#3483fa] hover:text-white transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-white/5"
-              >
-                {isLoggingIn ? (
-                  <div className="w-6 h-6 border-3 border-black/20 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-                )}
-                {isLoggingIn ? "Entrando..." : "Entrar com Google"}
-              </button>
-
-              <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl text-left">
-                <p className="text-xs text-blue-400 leading-relaxed">
-                  <strong>Dica:</strong> Se o login não abrir, verifique se o seu navegador bloqueou o popup. 
-                  Para uma melhor experiência, você também pode clicar em <strong>"Abrir em nova aba"</strong> no topo da página.
-                </p>
-              </div>
-
-              <p className="text-xs text-gray-600">
-                Ao entrar, você concorda com nossos termos de serviço e política de privacidade.
-              </p>
-            </div>
-          </motion.div>
-        ) : (
-          <>
-            {/* Header */}
-            <header className="flex justify-between items-center px-6 py-4 bg-black sticky top-0 z-40 border-b border-white/5">
-              <div className="text-2xl font-bold tracking-tight text-white">PIXEL</div>
-              <div className="flex items-center gap-4">
-                <div className="hidden md:flex flex-col items-end">
-                  <span className="text-[10px] font-bold uppercase text-gray-500">Logado como</span>
-                  <span className="text-xs font-bold text-[#3483fa]">{user.email}</span>
-                </div>
-                <button
-                  onClick={() => auth.signOut()}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-red-500"
-                  title="Sair"
-                >
-                  <LogIn className="w-5 h-5 rotate-180" />
-                </button>
-                <div className="w-px h-6 bg-white/10 mx-2" />
-                <button
-                  onClick={() => setIsCartOpen(true)}
-                  className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  {cart.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                      {cart.length}
-                    </span>
-                  )}
-                </button>
-              </div>
-            </header>
-
-            <div className="pt-8"> {/* Added padding top to prevent header overlap */}
+      <div className="pt-8">
 
       {/* Hero */}
       <section className="h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#111] to-[#0a0a0a] px-6 text-center">
@@ -931,9 +864,6 @@ function AppContent() {
           </div>
         )}
       </AnimatePresence>
-    </>
-  )}
-</AnimatePresence>
-</div>
+    </div>
   );
 }
