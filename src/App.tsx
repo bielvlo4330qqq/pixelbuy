@@ -353,7 +353,7 @@ function AppContent() {
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-[#3483fa] selection:text-white">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-black sticky top-0 z-40 border-b border-white/5">
-        <div className="text-2xl font-bold tracking-tight text-white">PIXELSHOP</div>
+        <div className="text-2xl font-bold tracking-tight text-white">STORE</div>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsCartOpen(true)}
@@ -387,7 +387,7 @@ function AppContent() {
           transition={{ delay: 0.2 }}
           className="text-4xl md:text-6xl font-black tracking-tighter mb-4"
         >
-          Conheça a <span className="text-[#3483fa]">Pixel Shop</span>
+          Conheça a <span className="text-[#3483fa]">Nossa Loja</span>
         </motion.h1>
         <motion.p
           initial={{ y: 20, opacity: 0 }}
@@ -527,152 +527,181 @@ function AppContent() {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white text-black z-50 flex flex-col shadow-2xl"
             >
-              <div className="p-4 flex justify-between items-center border-b">
+              <div className="p-4 flex justify-between items-center border-b shrink-0">
                 <h2 className="text-xl font-black tracking-tighter">Seu Carrinho</h2>
-                <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                  <X className="w-5 h-5" />
+                <button 
+                  onClick={() => setIsCartOpen(false)} 
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {cart.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                    <ShoppingCart className="w-12 h-12 mb-3 opacity-20" />
-                    <p className="text-sm">Seu carrinho está vazio</p>
-                  </div>
-                ) : (
-                  cart.map((item) => (
-                    <div key={item.cartId} className="flex gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                      <img src={item.img} alt={item.nome} referrerPolicy="no-referrer" className="w-12 h-12 object-contain" />
-                      <div className="flex-1">
-                        <h4 className="font-bold text-sm">{item.nome}</h4>
-                        <p className="text-gray-500 text-xs">R$ {item.preco.toFixed(2)}</p>
+              <div className="flex-1 overflow-y-auto overscroll-contain">
+                <div className="p-4 space-y-6">
+                  {/* Cart Items */}
+                  <div className="space-y-3">
+                    {cart.length === 0 ? (
+                      <div className="py-20 flex flex-col items-center justify-center text-gray-400">
+                        <ShoppingCart className="w-16 h-16 mb-4 opacity-10" />
+                        <p className="text-sm font-medium">Seu carrinho está vazio</p>
                       </div>
-                      <button
-                        onClick={() => removeFromCart(item.cartId)}
-                        className="text-red-500 p-1.5 hover:bg-red-50 rounded-full self-center"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                    ) : (
+                      cart.map((item) => (
+                        <div key={item.cartId} className="flex gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 items-center">
+                          <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 border border-gray-100 shrink-0">
+                            <img src={item.img} alt={item.nome} referrerPolicy="no-referrer" className="w-full h-full object-contain" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-sm truncate">{item.nome}</h4>
+                            <p className="text-[#3483fa] text-sm font-black mt-1">R$ {item.preco.toFixed(2)}</p>
+                          </div>
+                          <button
+                            onClick={() => removeFromCart(item.cartId)}
+                            className="text-gray-400 p-2 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {cart.length > 0 && (
+                    <div className="space-y-6">
+                      {/* Summary Card */}
+                      <div className="bg-black text-white p-5 rounded-3xl space-y-3 shadow-lg">
+                        <div className="flex justify-between text-xs font-medium text-gray-400">
+                          <span>Subtotal</span>
+                          <span>R$ {cart.reduce((acc, item) => acc + item.preco, 0).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs font-medium text-gray-400">
+                          <span>Entrega</span>
+                          <span className="text-green-400">Grátis</span>
+                        </div>
+                        <div className="flex justify-between items-end pt-3 border-t border-white/10">
+                          <span className="text-sm font-bold text-gray-400 uppercase">Valor Total</span>
+                          <span className="text-2xl font-black text-white leading-none">R$ {total.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      {/* Checkout Form */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 px-1">
+                          <div className="w-1 h-6 bg-[#3483fa] rounded-full" />
+                          <h3 className="font-black tracking-tight text-sm uppercase text-black">Checkout rápido</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">Dados Pessoais</label>
+                            <input
+                              id="nome"
+                              placeholder="Nome Completo"
+                              value={form.nome}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                            />
+                            <input
+                              id="email"
+                              type="email"
+                              placeholder="Seu melhor e-mail"
+                              value={form.email}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input
+                              id="cpf"
+                              placeholder="CPF"
+                              value={form.cpf}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                            />
+                            <input
+                              id="telefone"
+                              placeholder="Telefone / WhatsApp"
+                              value={form.telefone}
+                              onChange={handleInputChange}
+                              className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-gray-400 ml-1">Endereço de Entrega</label>
+                            <div className="relative">
+                              <input
+                                id="cep"
+                                placeholder="CEP"
+                                value={form.cep}
+                                onChange={handleInputChange}
+                                onBlur={() => handleCepLookup()}
+                                className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all pr-12 text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                              />
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#3483fa]">
+                                <Search className="w-5 h-5" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-[1fr_80px] gap-3">
+                              <input
+                                id="endereco"
+                                placeholder="Logradouro"
+                                value={form.endereco}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                              />
+                              <input
+                                id="numero"
+                                placeholder="Nº"
+                                value={form.numero}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                              />
+                            </div>
+                            <div className="grid grid-cols-[1fr_70px] gap-3">
+                              <input
+                                id="cidade"
+                                placeholder="Cidade"
+                                value={form.cidade}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black placeholder:text-gray-400"
+                              />
+                              <input
+                                id="estado"
+                                placeholder="UF"
+                                value={form.estado}
+                                onChange={handleInputChange}
+                                maxLength={2}
+                                className="w-full px-4 py-3.5 rounded-2xl border-2 border-gray-100 focus:border-[#3483fa] outline-none transition-all text-sm font-medium bg-gray-50 text-black text-center placeholder:text-gray-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  ))
-                )}
+                  )}
+                </div>
               </div>
 
               {cart.length > 0 && (
-                <div className="p-4 bg-gray-50 border-t space-y-4">
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between text-gray-500">
-                      <span>Subtotal</span>
-                      <span>R$ {cart.reduce((acc, item) => acc + item.preco, 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>Frete</span>
-                      <span className="text-amber-600 font-bold">A consultar</span>
-                    </div>
-                    <div className="flex justify-between text-lg pt-1.5 border-t">
-                      <span className="font-black">Total</span>
-                      <span className="font-black text-[#3483fa]">R$ {total.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-black tracking-tight text-sm">Dados de Entrega</h3>
-                    <div className="grid gap-2">
-                      <input
-                        id="nome"
-                        placeholder="Nome Completo"
-                        value={form.nome}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                      />
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="E-mail"
-                        value={form.email}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                      />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input
-                          id="cpf"
-                          placeholder="CPF"
-                          value={form.cpf}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                        />
-                        <input
-                          id="telefone"
-                          placeholder="Telefone"
-                          value={form.telefone}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                        />
-                      </div>
-                      <div className="relative">
-                        <input
-                          id="cep"
-                          placeholder="CEP (00000-000)"
-                          value={form.cep}
-                          onChange={handleInputChange}
-                          onBlur={() => handleCepLookup()}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all pr-10 text-sm bg-white text-black"
-                        />
-                        <button
-                          onClick={() => handleCepLookup()}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 text-[#3483fa] hover:bg-[#3483fa]/10 rounded-lg transition-colors"
-                        >
-                          <Search className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_80px] gap-2">
-                        <input
-                          id="endereco"
-                          placeholder="Rua / Logradouro"
-                          value={form.endereco}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                        />
-                        <input
-                          id="numero"
-                          placeholder="Nº"
-                          value={form.numero}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_70px] gap-2">
-                        <input
-                          id="cidade"
-                          placeholder="Cidade"
-                          value={form.cidade}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
-                        />
-                        <input
-                          id="estado"
-                          placeholder="UF"
-                          value={form.estado}
-                          onChange={handleInputChange}
-                          maxLength={2}
-                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black text-center"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
+                <div className="p-4 border-t bg-gray-50 shrink-0">
                   <button
                     onClick={handleCheckout}
                     disabled={isPixLoading}
-                    className="w-full py-3 bg-[#3483fa] text-white font-black rounded-xl hover:bg-[#2a6fd1] transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
+                    className="w-full py-4 bg-[#3483fa] text-white font-black rounded-3xl hover:bg-[#2a6fd1] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-[#3483fa]/20 active:scale-95"
                   >
                     {isPixLoading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      "Pagar com PIX"
+                      <>
+                        <QrCode className="w-6 h-6" />
+                        <span className="tracking-tight">PAGAR COM PIX AGORA</span>
+                      </>
                     )}
                   </button>
+                  <p className="text-[10px] text-center text-gray-400 mt-2 font-bold uppercase tracking-widest">Pagamento 100% seguro via PIX</p>
                 </div>
               )}
             </motion.div>
