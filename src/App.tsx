@@ -353,7 +353,7 @@ function AppContent() {
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-[#3483fa] selection:text-white">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-black sticky top-0 z-40 border-b border-white/5">
-        <div className="text-2xl font-bold tracking-tight text-white">PIXEL</div>
+        <div className="text-2xl font-bold tracking-tight text-white">PIXELSHOP</div>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsCartOpen(true)}
@@ -369,10 +369,10 @@ function AppContent() {
         </div>
       </header>
 
-      <div className="pt-8">
+      <div className="pt-20">
 
       {/* Hero */}
-      <section className="h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#111] to-[#0a0a0a] px-6 text-center">
+      <section className="min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-b from-[#111] to-[#0a0a0a] px-6 py-12 text-center">
         <motion.img
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -387,7 +387,7 @@ function AppContent() {
           transition={{ delay: 0.2 }}
           className="text-4xl md:text-6xl font-black tracking-tighter mb-4"
         >
-          Conheça a <span className="text-[#3483fa]">Pixel Store</span>
+          Conheça a <span className="text-[#3483fa]">Pixel Shop</span>
         </motion.h1>
         <motion.p
           initial={{ y: 20, opacity: 0 }}
@@ -578,13 +578,13 @@ function AppContent() {
 
                   <div className="space-y-2">
                     <h3 className="font-black tracking-tight text-sm">Dados de Entrega</h3>
-                    <div className="grid gap-1.5">
+                    <div className="grid gap-2">
                       <input
                         id="nome"
                         placeholder="Nome Completo"
                         value={form.nome}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                        className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                       />
                       <input
                         id="email"
@@ -592,22 +592,22 @@ function AppContent() {
                         placeholder="E-mail"
                         value={form.email}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                        className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                       />
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input
                           id="cpf"
                           placeholder="CPF"
                           value={form.cpf}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                         />
                         <input
                           id="telefone"
                           placeholder="Telefone"
                           value={form.telefone}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                         />
                       </div>
                       <div className="relative">
@@ -617,45 +617,46 @@ function AppContent() {
                           value={form.cep}
                           onChange={handleInputChange}
                           onBlur={() => handleCepLookup()}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all pr-10 text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all pr-10 text-sm bg-white text-black"
                         />
                         <button
                           onClick={() => handleCepLookup()}
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 text-[#3483fa] hover:bg-[#3483fa]/10 rounded-lg transition-colors"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 text-[#3483fa] hover:bg-[#3483fa]/10 rounded-lg transition-colors"
                         >
                           <Search className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-[1fr_70px] gap-1.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_80px] gap-2">
                         <input
                           id="endereco"
                           placeholder="Rua / Logradouro"
                           value={form.endereco}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                         />
                         <input
                           id="numero"
                           placeholder="Nº"
                           value={form.numero}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                         />
                       </div>
-                      <div className="grid grid-cols-[1fr_60px] gap-1.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_70px] gap-2">
                         <input
                           id="cidade"
                           placeholder="Cidade"
                           value={form.cidade}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black"
                         />
                         <input
                           id="estado"
                           placeholder="UF"
                           value={form.estado}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm"
+                          maxLength={2}
+                          className="w-full px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#3483fa] outline-none transition-all text-sm bg-white text-black text-center"
                         />
                       </div>
                     </div>
