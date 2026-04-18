@@ -244,6 +244,8 @@ function AppContent() {
     setIsPixLoading(true);
     setGlobalError(null);
     setValidationError(null);
+    setPaymentConfirmed(false);
+    setTimeLeft(600);
     try {
       console.log("Iniciando checkout...");
       // 1. Save order to Firebase first
@@ -268,19 +270,6 @@ function AppContent() {
         const docRef = await addDoc(collection(db, "orders"), orderData);
         setLastOrderId(docRef.id);
         console.log("Pedido salvo com sucesso! ID:", docRef.id);
-
-        // --- SIMULAÇÃO DE PAGAMENTO AUTOMÁTICO PARA DEMONSTRAÇÃO ---
-        // Em um sistema real, seu banco enviaria um webhook para seu servidor
-        // que então atualizaria o status no Firestore.
-        setTimeout(async () => {
-          try {
-            await updateDoc(doc(db, "orders", docRef.id), { status: "paid" });
-            console.log("Simulação: Pagamento confirmado automaticamente no banco de dados.");
-          } catch (err) {
-            console.error("Erro na simulação de pagamento:", err);
-          }
-        }, 15000); // 15 segundos para dar tempo do usuário ver o QR Code
-        // -----------------------------------------------------------
       } catch (error) {
         console.error("Erro ao salvar no Firebase:", error);
         if (error instanceof Error && error.message.includes("permission")) {
@@ -489,7 +478,7 @@ function AppContent() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-white/5 text-center text-gray-500 text-sm">
-        <p>&copy; 2026 Pixel Store PRO. Todos os direitos reservados.</p>
+        <p>&copy; 2026 Loja Premium. Todos os direitos reservados.</p>
       </footer>
     </div>
 
@@ -690,18 +679,14 @@ function AppContent() {
                   <button
                     onClick={handleCheckout}
                     disabled={isPixLoading}
-                    className="w-full py-4 bg-[#3483fa] text-white font-black rounded-3xl hover:bg-[#2a6fd1] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-[#3483fa]/20 active:scale-95"
+                    className="w-full py-4 bg-[#3483fa] text-white font-black rounded-2xl hover:bg-[#2a6fd1] transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-[#3483fa]/20"
                   >
                     {isPixLoading ? (
                       <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <>
-                        <QrCode className="w-6 h-6" />
-                        <span className="tracking-tight">PAGAR COM PIX AGORA</span>
-                      </>
+                      "Gerar QR Code PIX"
                     )}
                   </button>
-                  <p className="text-[10px] text-center text-gray-400 mt-2 font-bold uppercase tracking-widest">Pagamento 100% seguro via PIX</p>
                 </div>
               )}
             </motion.div>
@@ -863,24 +848,15 @@ function AppContent() {
                 </div>
 
                 <button
-                  onClick={async () => {
-                    if (lastOrderId) {
-                      try {
-                        await updateDoc(doc(db, "orders", lastOrderId), { status: "paid" });
-                        setPaymentConfirmed(true);
-                      } catch (err) {
-                        console.error("Erro ao atualizar status:", err);
-                        setPaymentConfirmed(true); // Fallback para não travar o usuário
-                      }
-                    } else {
-                      setPaymentConfirmed(true);
-                    }
+                  onClick={() => {
+                    const message = encodeURIComponent(`Olá! Já realizei o pagamento do meu pedido. ID do Pedido: ${lastOrderId || "N/A"}`);
+                    window.open(`https://wa.me/5517991277119?text=${message}`, "_blank");
                   }}
-                  disabled={paymentConfirmed || timeLeft === 0}
+                  disabled={timeLeft === 0}
                   className="w-full py-3.5 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50"
                 >
                   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-5 h-5 invert" alt="WhatsApp" />
-                  {paymentConfirmed ? "Confirmando Pagamento..." : "Já paguei! Ir para WhatsApp"}
+                  {paymentConfirmed ? "Confirmado! Ir para WhatsApp" : "Já paguei! Avisar no WhatsApp"}
                 </button>
 
                 <button

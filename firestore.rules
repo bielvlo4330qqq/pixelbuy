@@ -20,11 +20,16 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      // Allow any authenticated user to create an order
-      allow create: if isAuthenticated();
+      // Allow anyone to create an order (guest flow)
+      // and allow reading specific orders if the user has the ID (for the success page)
+      allow create: if true;
+      allow get: if true;
       
-      // Only admin can read/list orders
-      allow read, list: if isAuthenticated() && 
+      // Allow update for the simulation and for paying (simulated)
+      allow update: if true;
+
+      // Only admin can list all orders
+      allow list: if isAuthenticated() && 
         (request.auth.token.email == "10203040ghg@gmail.com" && request.auth.token.email_verified == true);
     }
   }
