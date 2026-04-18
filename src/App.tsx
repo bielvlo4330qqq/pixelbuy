@@ -566,7 +566,7 @@ function AppContent() {
                         </div>
                         <div className="flex justify-between text-xs font-medium text-gray-400">
                           <span>Entrega</span>
-                          <span className="text-green-400">Grátis</span>
+                          <span className="text-amber-500 font-bold uppercase tracking-widest text-[10px]">A combinar</span>
                         </div>
                         <div className="flex justify-between items-end pt-3 border-t border-white/10">
                           <span className="text-sm font-bold text-gray-400 uppercase">Valor Total</span>
@@ -802,8 +802,8 @@ function AppContent() {
                   >
                     <CheckCircle2 className="w-20 h-20 mb-2 animate-bounce" />
                     <p className="font-black text-lg">PAGAMENTO RECEBIDO!</p>
-                    <p className="text-amber-600 font-bold text-sm">freete há consultar</p>
-                    <p className="text-xs text-gray-500 mt-1">Redirecionando para o WhatsApp...</p>
+                    <p className="text-amber-600 font-bold text-sm">frete à combinar</p>
+                    <p className="text-xs text-gray-500 mt-1">Siga para o WhatsApp abaixo</p>
                   </motion.div>
                 ) : timeLeft > 0 ? (
                   <img
@@ -849,14 +849,14 @@ function AppContent() {
 
                 <button
                   onClick={() => {
-                    const message = encodeURIComponent(`Olá! Já realizei o pagamento do meu pedido. ID do Pedido: ${lastOrderId || "N/A"}`);
+                    const message = encodeURIComponent(`Já paguei, gostaria de solicitar o cálculo do frete! Compra ID: ${lastOrderId || "N/A"}`);
                     window.open(`https://wa.me/5517991277119?text=${message}`, "_blank");
                   }}
                   disabled={timeLeft === 0}
-                  className="w-full py-3.5 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-50"
+                  className="w-full py-4 bg-green-500 text-white font-black rounded-2xl hover:bg-green-600 transition-all shadow-xl shadow-green-500/20 flex items-center justify-center gap-3 text-sm md:text-base disabled:opacity-50"
                 >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-5 h-5 invert" alt="WhatsApp" />
-                  {paymentConfirmed ? "Confirmado! Ir para WhatsApp" : "Já paguei! Avisar no WhatsApp"}
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" className="w-6 h-6 invert" alt="WhatsApp" />
+                  <span>JÁ PAGUEI, GOSTARIA DE SOLICITAR O CÁLCULO DO FRETE</span>
                 </button>
 
                 <button
